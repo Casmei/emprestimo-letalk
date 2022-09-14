@@ -1,4 +1,3 @@
----
 
   ### 🏁 Pré-requisitos
   Antes de começar, você vai precisar ter instalado em sua máquina as seguintes ferramentas:
@@ -14,4 +13,3 @@
   - Inicialize o seu docker e rode o comando <br>```docker compose up --build```
   - Acesse <http://localhost:5173>
 
----
