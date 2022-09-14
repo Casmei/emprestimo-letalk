@@ -11,5 +11,6 @@
   ```cd emprestimo-letalk```
   - Verifique se a porta 3306 do seu computador esta livre
   - Inicialize o seu docker e rode o comando <br>```docker compose up --build```
+  - Popule os entrando dentro do container e rodando <br> ```npx prisma db seed```
   - Acesse <http://localhost:5173>
 
