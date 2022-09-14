@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+
+  database:
+    image: mysql:8.0
+    restart: always
+    environment: 
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=letalk
+    ports: 
+      - '3306:3306'
+    networks:
+      - database-network
+
+  letalk-api:
+    build: 
+      context: ./backend/
+      dockerfile: .docker/Dockerfile
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/usr/app
+    ports:
+      - '3000:3000'
+      - '5555:5555'
+    depends_on: 
+      - database
+    networks:
+      - database-network
+    command: sh -c "npm run dev" 
+
+networks:
+  database-network:
+    driver: bridge

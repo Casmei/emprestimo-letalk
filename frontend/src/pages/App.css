@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;700&display=swap');
+
+.font-letalk {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.title-letalk {
+  font-style: normal;
+  font-size: 50px;
+  font-weight: 300;
+  color: #8F99A6;
+}
+
+.background-letalk {
+  background-color: #F6F6F6;
+}
+
+.infoLoan {
+  color: #737373;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.valueLoan {
+  color: #333333;
+  font-weight: 700;
+  font-size: 16px;
+}
+
