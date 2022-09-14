@@ -6,8 +6,6 @@ export const createSimulation = async ({ stateId, value, portionValue }) => {
 
   const validValueCheck = valueRequeriments(value, portionValue);
 
-  console.log(validValueCheck);
-
   if (validValueCheck.type == 'error') {
     return validValueCheck;
   }
@@ -68,7 +66,6 @@ export const valueRequeriments = (value, portionValue) => {
 
   const isMinValuePortion = portionValue >= (value * 0.01);
 
-  console.log(isMinValue, value, isMinValuePortion, portionValue);
   if (!isMinValuePortion) {
     return { type: "error", msg: "valor minimo da parcela não atingido!", param: "portionValue" };
   }

@@ -5,14 +5,7 @@ import axios from "axios";
 import './App.css'
 
 function App() {
-  const { register, handleSubmit, watch, getValues, formState: { errors } } = useForm({
-    defaultValues: {
-      'cpf': '12345678910',
-      'birthDate': '10/20/1234',
-      'value': 60000,
-      'portionValue': 15000
-    }
-  });
+  const { register, handleSubmit, watch, getValues, formState: { errors } } = useForm();
 
   const [ loanTable, setLoanTable] = useState({
     debitBalance: [''],
@@ -31,6 +24,8 @@ function App() {
   })
 
   const [erro, setErro] = useState(undefined);
+  const [success, setSuccess] = useState(undefined);
+
 
   let today= new Date();
 
@@ -39,7 +34,7 @@ function App() {
     data.value = parseFloat(data.value);
     data.portionValue = parseFloat(data.portionValue)
     try {
-      const response = await axios.post(`http://localhost:3000/loan/simulation`, data);
+      const response = await axios.post(`https://632237b59e58a05d172e5624--graceful-kataifi-2c0ceb.netlify.app/loan/simulation`, data);
       console.log(response.data.data);
       setLoan({... response.data.data })
       setLoanTable({... response.data.data});
@@ -54,10 +49,12 @@ function App() {
     value.value = parseInt(value.value);
     value.portionValue = parseInt(value.portionValue);
     try {
-      const response = await axios.post(`http://localhost:3000/loan`, value);
+      const response = await axios.post(`https://632237b59e58a05d172e5624--graceful-kataifi-2c0ceb.netlify.app/loan`, value);
+      setSuccess(response);
+      setErro(undefined);
     }catch(err){
       console.log(err.response.data.message);
-      erro = err.response.data.message
+      setErro(err);
     }
   }
 
@@ -216,6 +213,11 @@ function App() {
                     </button>
                 </div>
               </div>
+                    { success != undefined &&
+                      <div class="p-4 mt-6 mb-20 text-sm text-green-700 bg-red-100 rounded-lg dark:bg-green-200 dark:text-green-800" role="alert">
+                        <span class="font-medium">Parabéns!</span> Empréstimo realizado com sucesso!
+                      </div>
+                    }
           </div>
         </div>
 

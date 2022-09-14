@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
+    "build": "babel src --out-dir dist",
     "dev": "nodemon -L --exec babel-node app.js"
   },
   "prisma": {
