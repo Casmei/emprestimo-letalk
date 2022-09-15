@@ -53,8 +53,8 @@ export const createSimulation = async ({ stateId, value, portionValue }) => {
 
 export const valueRequeriments = (value, portionValue) => {
 
-  if (portionValue > value) {
-    return { type: "error", msg: "valor da parcela maior que o emprestimo" }
+  if (portionValue >= value) {
+    return { type: "error", msg: "valor da parcela maior ou igual emprestimo" }
   }
 
 
