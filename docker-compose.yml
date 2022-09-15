@@ -3,13 +3,17 @@ version: '3'
 services:
 
   database:
-    image: mysql:8.0
+    image: mariadb
     restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=letalk
+      - MYSQL_USER=letalk
+      - MYSQL_PASSWORD=password
     ports:
       - '3306:3306'
+    volumes:
+      - ./.dbdata:/var/lib/mysql
     networks:
       - database-network
 
@@ -21,6 +25,7 @@ services:
       - ./backend/.env
     volumes:
       - ./backend:/usr/app
+    restart: always
     ports:
       - '3000:3000'
       - '5555:5555'
