@@ -10,7 +10,7 @@ export const create = async (req, res) => {
   return res.status(201).json(result);
 }
 
-export const index = async (req, res) => {
+export const indexLoan = async (req, res) => {
   const result = await getLoans();
 
   return res.status(200).json(result);
