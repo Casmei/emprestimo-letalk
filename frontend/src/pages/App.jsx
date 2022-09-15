@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import axios from "axios";
 
 import './App.css'
+import { useEffect } from 'react';
 
 function App() {
-  const { register, handleSubmit, watch, getValues, formState: { errors } } = useForm();
-
+  const { register, handleSubmit, getValues, formState: { errors } } = useForm();
+  const [states, setStates] = useState([]);
   const [ loanTable, setLoanTable] = useState({
     debitBalance: [''],
     debitBalanceAdjusted: [''],
@@ -23,18 +24,20 @@ function App() {
     fee: 0
   })
 
-  const [erro, setErro] = useState(undefined);
-  const [success, setSuccess] = useState(undefined);
-
+  useEffect(()=> {
+    getStates();
+  }, [states])
 
   let today= new Date();
 
+  const [erro, setErro] = useState(undefined);
+  const [success, setSuccess] = useState(undefined);
 
   const onSubmit = async (data) => {
     data.value = parseFloat(data.value);
     data.portionValue = parseFloat(data.portionValue)
     try {
-      const response = await axios.post(`https://632237b59e58a05d172e5624--graceful-kataifi-2c0ceb.netlify.app/loan/simulation`, data);
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/loan/simulation`, data);
       console.log(response.data.data);
       setLoan({... response.data.data })
       setLoanTable({... response.data.data});
@@ -44,12 +47,21 @@ function App() {
     }
   }
 
+  const getStates = () => {
+      axios.get( `${import.meta.env.VITE_API_URL}/state`).then((response)=>{
+        setStates(response.data);
+      })
+      .catch((err)=>{
+        console.log(err)
+      })
+  }
+
   const efetivar = async () => {
     const value = getValues();
     value.value = parseInt(value.value);
     value.portionValue = parseInt(value.portionValue);
     try {
-      const response = await axios.post(`https://632237b59e58a05d172e5624--graceful-kataifi-2c0ceb.netlify.app/loan`, value);
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/loan`, value);
       setSuccess(response);
       setErro(undefined);
     }catch(err){
@@ -58,11 +70,9 @@ function App() {
     }
   }
 
-
   return (
     <div className='font-letalk'>
-
-        <div className='px-[19%] w-screen'>
+        <div className=' px-[4%] md:px-[19%]  w-screen'>
           <form className='pt-16 pb-2 mx-auto text-center' onSubmit={handleSubmit(onSubmit)}>
             <div className='my-20'>
               <h1 className='text-center title-letalk'>
@@ -70,35 +80,61 @@ function App() {
               </h1>
             </div>
             <div>
-                <p className="text-center text-[20px] text-gray-700 font-bold mb-3  ">
+                <p className="text-center text-[20px] text-gray-700 font-bold mb-3">
                   Preencha o formulário abaixo para simular
                 </p>
               <div className=" bg-[white] rounded-md shadow px-8">
                 <div className='pt-16 pb-2 mx-auto text-center'>
-                  <div className="mb-3">
-                    <input type="text" {...register("cpf")} placeholder="CPF" className="px-3 p-3 mb-3.5 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-[1px] border-[#D4D4D4] outline-none focus:outline-none focus:ring w-full"/>
+                  <div className='mb-3.5'>
+                    <input type="text"  {...register("cpf", { required: true, maxLength: 11, minLength: 11 })} placeholder="CPF" className="px-3 p-3  placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-[1px] border-[#D4D4D4] outline-none focus:outline-none focus:ring w-full"/>
+                    {errors.cpf &&
+                    <span className="flex items-center font-medium tracking-wide text-red-500 text-xs mt-1 ml-1 mb-2">
+                      Campo CPF deve conter 11 caracteres
+                    </span>
+                    }
                   </div>
 
                   <div >
-                    <select {...register("stateId")} id="countries" className="px-3 p-3 mb-3.5 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-[1px] border-[#D4D4D4] outline-none focus:outline-none focus:ring w-full">
-                      <option className='text-slate-300 placeholder-slate-300' defaultValue><span className='text-slate-300'>Choose a country</span></option>
-                      <option value="226def03-f494-4218-9d1a-171cef010451">Minas Gerais</option>
-                      <option value="fa1b9558-f921-459d-a8af-c7a490037dd1">São Paulo</option>
-                      <option value="3e935673-ec3c-48ab-ba3e-76fe561f32fd">Rio de Janeiro</option>
-                      <option value="8c5ca9b6-47da-44e6-bc0e-af16632a8894">Espirito Santo</option>
+                    <select  {...register("stateId",  { required: true})} id="countries" className="px-3 p-3 mb-3.5 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-[1px] border-[#D4D4D4] outline-none focus:outline-none focus:ring w-full">
+                      <option className='text-slate-300 placeholder-slate-300'>Escolha seu estado</option>
+                      {states.map(e => {
+                        return (
+                          <option key={e.id} value={e.id}>{e.name}</option>
+                        )
+                      })}
                     </select>
+                    {errors.stateId &&
+                    <span class="flex items-center font-medium tracking-wide text-red-500 text-xs mt-1 ml-1">
+                      Escolha um estado!
+                    </span>
+                    }
                   </div>
 
                   <div className="mb-3 pt-0">
-                    <input {...register("birthDate")} type="date" placeholder="DATA DE NASCIMENTO" className="px-3 p-3 mb-3.5 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-[1px] border-[#D4D4D4] outline-none focus:outline-none focus:ring w-full"/>
+                    <input {...register("birthDate", {required: true})} type="date" placeholder="DATA DE NASCIMENTO" className="px-3 p-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-[1px] border-[#D4D4D4] outline-none focus:outline-none focus:ring w-full"/>
+                    {errors.birthDate &&
+                    <span className="flex items-center font-medium tracking-wide text-red-500 text-xs mt-1 ml-1 mb-2">
+                      Campo Data requerido!
+                    </span>
+                    }
                   </div>
 
                   <div className="mb-3 pt-0">
-                    <input {...register("value")} type="number" placeholder="QUAL O VALOR DO EMPRÉSTIMO" className="px-3 p-3 mb-3.5 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-[1px] border-[#D4D4D4] outline-none focus:outline-none focus:ring w-full"/>
+                    <input {...register("value", {required: true})} type="number" placeholder="QUAL O VALOR DO EMPRÉSTIMO" className="px-3 p-3  placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-[1px] border-[#D4D4D4] outline-none focus:outline-none focus:ring w-full"/>
+                    {errors.value &&
+                    <span className="flex items-center font-medium tracking-wide text-red-500 text-xs mt-1 ml-1 mb-2">
+                      Valor do empréstimo deve ser informado!
+                    </span>
+                    }
                   </div>
 
                   <div className="mb-3 pt-0">
-                    <input {...register("portionValue")} type="number" placeholder="QUAL VALOR DESEJA PAGAR POR MÊS?" className="px-3 p-3 mb-3.5 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-[1px] border-[#D4D4D4] outline-none focus:outline-none focus:ring w-full"/>
+                    <input {...register("portionValue", {required: true})} type="number" placeholder="QUAL VALOR DESEJA PAGAR POR MÊS?" className="px-3 p-3  placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-[1px] border-[#D4D4D4] outline-none focus:outline-none focus:ring w-full"/>
+                    {errors.portionValue &&
+                    <span className="flex items-center font-medium tracking-wide text-red-500 text-xs mt-1 ml-1 mb-2">
+                      O campo de parcelamento deve ser informado!
+                    </span>
+                    }
                   </div>
 
                   <button type='submit' className="bg-[#F3A826] mb-4 shadow hover:bg-[#F3A000] mx-auto w-full text-white font-bold py-2 rounded">
@@ -116,7 +152,7 @@ function App() {
           </form>
         </div>
 
-          <div className='px-[19%] w-screen'>
+          <div className='px-[4%] md:px-[19%] w-screen'>
 
             <div>
               <p className="text-center mt-20 text-[20px] text-gray-700 font-bold mb-3">
@@ -124,7 +160,7 @@ function App() {
               </p>
               <div className="bg-[white] rounded-md shadow px-8">
 
-                <div className='pt-8 pb-2 grid text-center grid-cols-1 md:grid-cols-3 md:text-left gap-4'>
+                <div className='pt-8 pb-2 grid text-center grid-cols-2 md:grid-cols-3 md:text-left gap-4'>
                   <div className='flex flex-col content-center'>
                     <p className='infoLoan'>VALOR REQUERIDO</p>
                     <p className='valueLoan text-[20px]'>R$ {loan.value}</p>
@@ -184,7 +220,7 @@ function App() {
                                 {loanTable.debitBalance.map((item, index) => {
                                   today.setMonth(today.getMonth() + 1)
                                   return (
-                                    <tr className="border-b hover:bg-gray-50">
+                                    <tr key={index} className="border-b hover:bg-gray-50">
                                       <td className="p-4">
                                         {item}
                                       </td><td className="p-4">
@@ -194,7 +230,7 @@ function App() {
                                       </td><td className="p-4">
                                         R${loanTable.installmentValue[index]}
                                       </td><td className="p-4">
-                                        R${today.toLocaleDateString('pt-BR') }
+                                        {today.toLocaleDateString('pt-BR') }
                                       </td>
                                     </tr>
                                   )
