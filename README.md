@@ -16,8 +16,16 @@
   - Entre dentro do container da api para realizar os comandos do prisma <br> ```docker exec -itu 0 letalk-letalk-api-1 sh```
   - Faça a migração das tabelas <br> ```prisma migrate dev```
   - Popule as tabelas <br> ```npx prisma db seed```
+  
+    *OU*
+    
+  - Entre na pasta backend
+  - Rode o script ```bash migrate.sh <windows> || ./migrate.sh <linux>```
+  
   - Acesse http://localhost:5173 - Aplicação
   - Acesse http://localhost:3000 - Api  
+  
+ 
   
   ## Endpoints
   Existem dois endpoint para retorno de dados
